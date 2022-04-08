@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from PIL import Image
 from typing import List, Tuple
 from bisect import bisect_right
 from torch.utils.data import Dataset
@@ -28,3 +29,22 @@ class CustomImageDataset(Dataset):
         X = np.concatenate((X, X, X), axis=0)*255
         y = class_idx
         return X, y
+
+
+class LensingData(Dataset):
+
+    def __init__(self, data, transform=None):
+        self.transform = transform
+        self.images = data[:, 0]
+        self.labels = data[:, 1]
+        self.num_samples = len(self.labels)
+
+    def __getitem__(self, index):
+        image, label = self.images[index], self.labels[index]
+        image = Image.fromarray(image)
+        if self.transform is not None:
+            image = self.transform(image)
+        return image, label
+
+    def __len__(self):
+        return len(self.labels)
